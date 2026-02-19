@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+// ========================================
+// USUÁRIO (PROFISSIONAL)
+// ========================================
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  avatarUrl    String?   @map("avatar_url")
+  companyName  String?   @map("company_name")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  briefings    Briefing[]
+
+  @@map("users")
+}
+
+// ========================================
+// BRIEFING
+// ========================================
+enum BriefingStatus {
+  DRAFT
+  SENT
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+}
+
+model Briefing {
+  id                String         @id @default(uuid())
+  userId            String         @map("user_id")
+
+  // Dados do cliente
+  clientName        String         @map("client_name")
+  clientEmail       String         @map("client_email")
+  clientPhone       String?        @map("client_phone")
+
+  // Dados do projeto
+  businessSegment   String         @map("business_segment")
+  spaceType         String         @map("space_type")
+  approximateArea   Float?         @map("approximate_area")
+  estimatedBudget   String?        @map("estimated_budget")
+  desiredDeadline   String?        @map("desired_deadline")
+  isRenovation      Boolean        @default(false) @map("is_renovation")
+  initialNotes      String?        @map("initial_notes") @db.Text
+
+  // Controle
+  status            BriefingStatus @default(DRAFT)
+  uniqueLink        String         @unique @map("unique_link")
+  submittedAt       DateTime?      @map("submitted_at")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions         Question[]
+
+  @@map("briefings")
+}
+
+// ========================================
+// PERGUNTAS
+// ========================================
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TEXT_SHORT
+  TEXT_LONG
+  SCALE
+  FILE_UPLOAD
+}
+
+model Question {
+  id            String       @id @default(uuid())
+  briefingId    String       @map("briefing_id")
+
+  questionText  String       @map("question_text") @db.Text
+  questionType  QuestionType @map("question_type")
+  category      String?
+  options       Json?
+  isRequired    Boolean      @default(true) @map("is_required")
+  order         Int
+  createdByAI   Boolean      @default(false) @map("created_by_ai")
+
+  briefing      Briefing     @relation(fields: [briefingId], references: [id], onDelete: Cascade)
+  answer        Answer?
+
+  @@map("questions")
+}
+
+// ========================================
+// RESPOSTAS
+// ========================================
+model Answer {
+  id           String   @id @default(uuid())
+  questionId   String   @unique @map("question_id")
+
+  answerText   String?  @map("answer_text") @db.Text
+  answerFiles  Json?    @map("answer_files")
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("answers")
+}
