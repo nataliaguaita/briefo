@@ -12,9 +12,23 @@ DropdownMenuSeparator,
 DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { LogOut, User, Settings } from "lucide-react"
 
 export function Header() {
-const { data: session } = useSession()
+const { data: session, status } = useSession()
+
+if (status === "loading") {
+    return (
+    <header className="border-b border-slate-200 bg-white">
+        <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+            <span className="text-2xl font-bold text-primary">briefo</span>
+            <div className="h-10 w-10 rounded-full bg-slate-200 animate-pulse" />
+        </div>
+        </div>
+    </header>
+    )
+}
 
 const getInitials = (name: string) => {
     return name
@@ -55,16 +69,23 @@ return (
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                <Link href="/perfil">Meu Perfil</Link>
+                <Link href="/perfil" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    Meu Perfil
+                </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                <Link href="/configuracoes">Configurações</Link>
+                <Link href="/configuracoes" className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Configurações
+                </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                 className="text-red-600 cursor-pointer"
                 onClick={() => signOut({ callbackUrl: '/login' })}
                 >
+                <LogOut className="mr-2 h-4 w-4" />
                 Sair
                 </DropdownMenuItem>
             </DropdownMenuContent>
