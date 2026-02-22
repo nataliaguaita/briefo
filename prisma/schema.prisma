@@ -41,13 +41,16 @@ model Briefing {
   userId            String         @map("user_id")
   
   // Dados do cliente
-  clientName        String         @map("client_name")
+  projectName       String         @map("project_name")  // NOVO
+  clientNames       String         @map("client_names")  // ALTERADO - agora aceita múltiplos
   clientEmail       String         @map("client_email")
   clientPhone       String?        @map("client_phone")
   
   // Dados do projeto
   businessSegment   String         @map("business_segment")
   spaceType         String         @map("space_type")
+  city              String?        // NOVO
+  state             String?        // NOVO
   approximateArea   Float?         @map("approximate_area")
   estimatedBudget   String?        @map("estimated_budget")
   desiredDeadline   String?        @map("desired_deadline")
